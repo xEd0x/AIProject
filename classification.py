@@ -1,6 +1,7 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
@@ -23,10 +24,20 @@ import seaborn as sns
 
 dataset = pd.read_csv('train.csv')
 
+#Pearson correlation
+plt.figure(figsize = (20,20))
+cor = dataset.corr()
+sns.heatmap(cor, annot = True, cmap = plt.cm.Reds)
+#plt.savefig('pearson.png')
+plt.show()
+
+dataset.drop('three_g', axis = 1, inplace = True)
+dataset.drop('pc', axis = 1, inplace = True)
+
 print(dataset.head(10))
 
-X = dataset.iloc[:,:20].values
-y = dataset.iloc[:,20:21].values
+X = dataset.iloc[:,:18].values
+y = dataset.iloc[:,18:19].values
 
 sc = StandardScaler()
 X = sc.fit_transform(X)
@@ -41,7 +52,7 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.1)
 
 # Neural network
 model = Sequential()
-model.add(Dense(16, input_dim=20, activation='relu'))
+model.add(Dense(16, input_dim=18, activation='relu'))
 model.add(Dense(12, activation='relu'))
 model.add(Dense(4, activation='softmax'))
 
@@ -129,13 +140,13 @@ print("Decision Tree Accuracy: ", dtree_accuracy * 100)
 
 
 #SVM
-svm_model_linear = OneVsRestClassifier(SVC(kernel = 'linear', C = 10)).fit(X_train, y_train)
+svm_model_linear = OneVsRestClassifier(SVC(kernel = 'linear', C = 20, probability = True)).fit(X_train, y_train)
 svm_predictions_linear = svm_model_linear.predict(X_test)
 
-svm_model_rbf = OneVsRestClassifier(SVC(kernel = 'rbf', C = 15)).fit(X_train, y_train)
+svm_model_rbf = OneVsRestClassifier(SVC(kernel = 'rbf', C = 20)).fit(X_train, y_train)
 svm_predictions_rbf = svm_model_rbf.predict(X_test)
 
-svm_model_poly = OneVsRestClassifier(SVC(kernel = 'poly', C = 10)).fit(X_train, y_train)
+svm_model_poly = OneVsRestClassifier(SVC(kernel = 'poly', C = 10, gamma = 'scale', coef0 = 2, degree = 2, break_ties=True, tol = 0.1)).fit(X_train, y_train)
 svm_predictions_poly = svm_model_poly.predict(X_test)
 
 svm_model_sigmoid = OneVsRestClassifier(SVC(kernel = 'sigmoid', C = 5)).fit(X_train, y_train)
